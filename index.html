@@ -1,99 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Trap Mode</title>
-<style>
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #000;
-  color: #fff;
-  font-family: sans-serif;
-  flex-direction: column;
-  cursor: default; /* Normal cursor */
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Popup Launcher</title>
 
-#overlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #000;
-  z-index: 10;
-  font-size: 32px;
-  cursor: pointer;
-}
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0f172a;
+      font-family: Arial, sans-serif;
+    }
 
-button {
-  padding: 12px 24px;
-  font-size: 18px;
-  margin-top: 20px;
-  cursor: pointer;
-}
-</style>
+    button {
+      padding: 18px 28px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: #22c55e;
+      color: white;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background: #16a34a;
+    }
+  </style>
 </head>
+
 <body>
 
-<div id="overlay">CLICK TO START</div>
-<h1>FULLSCREEN MODE</h1>
-<button id="stop">STOP</button>
+  <button onclick="openWindow()">Open in New Window</button>
 
-<script>
-let blocked = true;
-const stopBtn = document.getElementById('stop');
+  <script>
+    function openWindow() {
+      const url = window.location.href;
 
-// Fullscreen request
-function fs() {
-  if (document.documentElement.requestFullscreen) {
-    document.documentElement.requestFullscreen();
-  }
-}
+      const newWin = window.open(
+        url,
+        "_blank",
+        "width=1000,height=700,left=200,top=100,resizable=yes,scrollbars=yes"
+      );
 
-// Fullscreen persistence
-document.addEventListener('fullscreenchange', () => {
-  if (blocked && !document.fullscreenElement) {
-    fs();
-  }
-});
-
-// Block all keys except emergency P
-document.addEventListener('keydown', e => {
-  if (!blocked) return;
-
-  if (e.key === 'p' || e.key === 'P') {
-    blocked = false;
-    document.exitFullscreen && document.exitFullscreen();
-  } else {
-    e.preventDefault();
-    e.stopPropagation();
-  }
-});
-
-// Start trap
-document.getElementById('overlay').onclick = () => {
-  fs();
-  document.getElementById('overlay').remove();
-};
-
-// STOP button dodges cursor
-stopBtn.onmouseenter = () => {
-  if (!blocked) return;
-  stopBtn.style.position = 'absolute';
-  stopBtn.style.left = Math.random() * (window.innerWidth - 120) + 'px';
-  stopBtn.style.top = Math.random() * (window.innerHeight - 60) + 'px';
-};
-
-// STOP button works
-stopBtn.onclick = () => {
-  blocked = false;
-  document.exitFullscreen && document.exitFullscreen();
-};
-</script>
+      if (!newWin) {
+        alert("Popup blocked. Allow popups for this site.");
+      } else {
+        newWin.focus();
+      }
+    }
+  </script>
 
 </body>
 </html>
