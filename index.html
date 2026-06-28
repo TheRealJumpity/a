@@ -1,60 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Popup Launcher</title>
-
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #0f172a;
-      font-family: Arial, sans-serif;
-    }
-
-    button {
-      padding: 18px 28px;
-      font-size: 18px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      background: #22c55e;
-      color: white;
-      transition: 0.2s;
-    }
-
-    button:hover {
-      transform: scale(1.05);
-      background: #16a34a;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Launcher</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container { text-align: center; width: 100%; max-width: 500px; padding: 20px; }
+        h1 { font-size: 1.5rem; margin-bottom: 24px; font-weight: 400; color: #e0e0e0; }
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background-color: #1e1e1e;
+            border: 1px solid #333333;
+            border-radius: 50px;
+            padding: 6px 6px 6px 20px;
+        }
+        .input-wrapper:focus-within { border-color: #0078d4; }
+        input[type="text"] {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 1rem;
+            padding: 10px 0;
+        }
+        input[type="text"]::placeholder { color: #757575; }
+        .launch-btn {
+            background-color: #0078d4;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+        .launch-btn svg { width: 20px; height: 20px; fill: none; stroke: #ffffff; stroke-width: 2; }
+        .error-msg { color: #ff5252; font-size: 0.85rem; margin-top: 12px; visibility: hidden; }
+    </style>
 </head>
-
 <body>
-
-  <button onclick="openWindow()">Open in New Window</button>
-
-  <script>
-    function openWindow() {
-      const url = window.location.href;
-
-      const newWin = window.open(
-        url,
-        "_blank",
-        "width=1000,height=700,left=200,top=100,resizable=yes,scrollbars=yes"
-      );
-
-      if (!newWin) {
-        alert("Popup blocked. Allow popups for this site.");
-      } else {
-        newWin.focus();
-      }
-    }
-  </script>
-
+    <div class="container">
+        <h1>Webview Launcher</h1>
+        <div class="input-wrapper">
+            <input type="text" id="urlInput" placeholder="Enter URL (e.g., google.com)">
+            <button class="launch-btn" id="launchBtn">
+                <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+        </div>
+        <div class="error-msg" id="errorMsg">Please enter a valid URL</div>
+    </div>
+    <script>
+        const urlInput = document.getElementById('urlInput');
+        const launchBtn = document.getElementById('launchBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        function launch() {
+            let input = urlInput.value.trim();
+            if (!input) return;
+            if (!/^https?:\/\//i.test(input)) input = 'https://' + input;
+            try {
+                const verifiedUrl = new URL(input);
+                if (!verifiedUrl.hostname.includes('.') && verifiedUrl.hostname !== 'localhost') throw new Error();
+                errorMsg.style.visibility = 'hidden';
+                window.open(verifiedUrl.href, '_blank');
+            } catch (e) {
+                errorMsg.style.visibility = 'visible';
+            }
+        }
+        launchBtn.addEventListener('click', launch);
+        urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') launch(); });
+        urlInput.addEventListener('input', () => { errorMsg.style.visibility = 'hidden'; });
+    </script>
 </body>
 </html>
