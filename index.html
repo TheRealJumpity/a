@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Launcher</title>
+    <title>Web Viewer</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -11,79 +11,75 @@
             color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            flex-direction: column;
             height: 100vh;
             overflow: hidden;
         }
-        .container { text-align: center; width: 100%; max-width: 500px; padding: 20px; }
-        h1 { font-size: 1.5rem; margin-bottom: 24px; font-weight: 400; color: #e0e0e0; }
-        .input-wrapper {
-            position: relative;
+        .navbar {
             display: flex;
             align-items: center;
             background-color: #1e1e1e;
-            border: 1px solid #333333;
-            border-radius: 50px;
-            padding: 6px 6px 6px 20px;
+            border-bottom: 1px solid #333333;
+            padding: 10px;
+            gap: 10px;
         }
-        .input-wrapper:focus-within { border-color: #0078d4; }
         input[type="text"] {
             flex: 1;
-            background: none;
-            border: none;
-            outline: none;
+            background-color: #252525;
+            border: 1px solid #444444;
+            border-radius: 4px;
             color: #ffffff;
-            font-size: 1rem;
-            padding: 10px 0;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+            outline: none;
         }
-        input[type="text"]::placeholder { color: #757575; }
+        input[type="text"]:focus { border-color: #0078d4; }
         .launch-btn {
             background-color: #0078d4;
+            color: white;
             border: none;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 8px 16px;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 0.9rem;
         }
-        .launch-btn svg { width: 20px; height: 20px; fill: none; stroke: #ffffff; stroke-width: 2; }
-        .error-msg { color: #ff5252; font-size: 0.85rem; margin-top: 12px; visibility: hidden; }
+        .launch-btn:hover { background-color: #005a9e; }
+        .viewer-frame {
+            flex: 1;
+            border: none;
+            background-color: #ffffff;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Webview Launcher</h1>
-        <div class="input-wrapper">
-            <input type="text" id="urlInput" placeholder="Enter URL (e.g., google.com)">
-            <button class="launch-btn" id="launchBtn">
-                <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </button>
-        </div>
-        <div class="error-msg" id="errorMsg">Please enter a valid URL</div>
+
+    <div class="navbar">
+        <input type="text" id="urlInput" placeholder="Enter URL (e.g., wikipedia.org)">
+        <button class="launch-btn" id="launchBtn">Go</button>
     </div>
+
+    <iframe class="viewer-frame" id="webViewer" src="about:blank"></iframe>
+
     <script>
         const urlInput = document.getElementById('urlInput');
         const launchBtn = document.getElementById('launchBtn');
-        const errorMsg = document.getElementById('errorMsg');
+        const webViewer = document.getElementById('webViewer');
+
         function launch() {
             let input = urlInput.value.trim();
             if (!input) return;
-            if (!/^https?:\/\//i.test(input)) input = 'https://' + input;
-            try {
-                const verifiedUrl = new URL(input);
-                if (!verifiedUrl.hostname.includes('.') && verifiedUrl.hostname !== 'localhost') throw new Error();
-                errorMsg.style.visibility = 'hidden';
-                window.open(verifiedUrl.href, '_blank');
-            } catch (e) {
-                errorMsg.style.visibility = 'visible';
+            
+            // Automatically add https:// if the user didn't type it
+            if (!/^https?:\/\//i.test(input)) {
+                input = 'https://' + input;
             }
+            
+            // Set the iframe source to the new URL
+            webViewer.src = input;
         }
+
         launchBtn.addEventListener('click', launch);
         urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') launch(); });
-        urlInput.addEventListener('input', () => { errorMsg.style.visibility = 'hidden'; });
     </script>
 </body>
 </html>
