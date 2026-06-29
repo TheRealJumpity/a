@@ -5,17 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Viewer Launcher</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* Color variables for smooth switching */
+        :root {
+            --bg-color: #0a0a0c;
+            --text-color: #ffffff;
+            --container-bg: linear-gradient(180deg, #16161a 0%, #0f0f12 100%);
+            --border-color: #232329;
+            --input-bg: #1c1c24;
+            --shadow: rgba(0, 0, 0, 0.5);
+        }
+
+        .light-mode {
+            --bg-color: #f0f2f5;
+            --text-color: #1a1a1a;
+            --container-bg: linear-gradient(180deg, #ffffff 0%, #f5f5f7 100%);
+            --border-color: #dddddd;
+            --input-bg: #eaeaea;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
         
         body {
-            background-color: #0a0a0c;
-            color: #ffffff;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             overflow: hidden;
+        }
+
+        /* Cool Top Bar for Theme Switcher */
+        .top-bar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .theme-toggle {
+            background: var(--container-bg);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 10px var(--shadow);
+        }
+        .theme-toggle:hover {
+            transform: scale(1.05);
         }
 
         @keyframes fadeIn {
@@ -35,7 +82,6 @@
             font-size: 1.8rem;
             margin-bottom: 24px;
             font-weight: 400;
-            color: #e0e0e0;
             letter-spacing: 1px;
         }
 
@@ -43,12 +89,11 @@
             position: relative;
             display: flex;
             align-items: center;
-            background: linear-gradient(180deg, #16161a 0%, #0f0f12 100%);
-            border: 2px solid #232329;
+            background: var(--container-bg);
+            border: 2px solid var(--border-color);
             border-radius: 50px;
             padding: 6px 6px 6px 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px var(--shadow);
         }
 
         .input-wrapper:focus-within {
@@ -62,12 +107,10 @@
             background: none;
             border: none;
             outline: none;
-            color: #ffffff;
+            color: var(--text-color);
             font-size: 1rem;
             padding: 10px 0;
         }
-
-        input[type="text"]::placeholder { color: #555566; }
 
         .launch-btn {
             background: linear-gradient(135deg, #0078d4 0%, #00a2ff 100%);
@@ -79,7 +122,6 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            transition: all 0.2s ease;
             box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4);
         }
 
@@ -89,19 +131,20 @@
             filter: brightness(1.1);
         }
 
-        .launch-btn:active {
-            transform: scale(0.95);
-        }
-
+        .launch-btn:active { transform: scale(0.95); }
         .launch-btn svg { width: 20px; height: 20px; fill: none; stroke: #ffffff; stroke-width: 2.5; }
     </style>
 </head>
 <body>
 
+    <div class="top-bar">
+        <button class="theme-toggle" id="themeToggle">☀️ Light Mode</button>
+    </div>
+
     <div class="container">
         <h1>App Launcher</h1>
         <div class="input-wrapper">
-            <input type="text" id="urlInput" placeholder="Enter URL (e.g., wikipedia.org)">
+            <input type="text" id="urlInput" placeholder="Enter URL or search Google...">
             <button class="launch-btn" id="launchBtn">
                 <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </button>
@@ -111,21 +154,35 @@
     <script>
         const urlInput = document.getElementById('urlInput');
         const launchBtn = document.getElementById('launchBtn');
+        const themeToggle = document.getElementById('themeToggle');
 
+        // Theme Switcher Logic
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            if (document.body.classList.contains('light-mode')) {
+                themeToggle.textContent = '🌙 Dark Mode';
+            } else {
+                themeToggle.textContent = '☀️ Light Mode';
+            }
+        });
+
+        // Smart Launch Logic (URL vs Google Search)
         function launch() {
             let input = urlInput.value.trim();
             if (!input) return;
             
-            if (!/^https?:\/\//i.test(input)) {
-                input = 'https://' + input;
+            let finalTarget = '';
+
+            // Check if it looks like a website (has a dot and no spaces)
+            if (input.includes('.') && !input.includes(' ')) {
+                if (!/^https?:\/\//i.test(input)) {
+                    finalTarget = 'https://' + input;
+                } else {
+                    finalTarget = input;
+                }
+            } else {
+                // If it's just words, send it to Google Search
+                finalTarget = 'https://www.google.com/search?q=' + encodeURIComponent(input);
             }
             
-            // 'popup=yes' forces the browser to open it as a standalone app window
-            window.open(input, '_blank', 'popup=yes,width=1200,height=800,menubar=no,toolbar=no,location=no,status=no');
-        }
-
-        launchBtn.addEventListener('click', launch);
-        urlInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') launch(); });
-    </script>
-</body>
-</html>
+            window.open(finalTarget,
