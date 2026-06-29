@@ -3,79 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Viewer</title>
+    <title>Web Viewer Launcher</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
-            background-color: #121212;
+            background-color: #0a0a0c;
             color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
             overflow: hidden;
         }
-        .navbar {
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            animation: fadeIn 0.6s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+            font-weight: 400;
+            color: #e0e0e0;
+            letter-spacing: 1px;
+        }
+
+        .input-wrapper {
+            position: relative;
             display: flex;
             align-items: center;
-            background-color: #1e1e1e;
-            border-bottom: 1px solid #333333;
-            padding: 10px;
-            gap: 10px;
+            background: linear-gradient(180deg, #16161a 0%, #0f0f12 100%);
+            border: 2px solid #232329;
+            border-radius: 50px;
+            padding: 6px 6px 6px 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
         }
+
+        .input-wrapper:focus-within {
+            border-color: #00a2ff;
+            box-shadow: 0 0 20px rgba(0, 162, 255, 0.3);
+            transform: scale(1.02);
+        }
+
         input[type="text"] {
             flex: 1;
-            background-color: #252525;
-            border: 1px solid #444444;
-            border-radius: 4px;
-            color: #ffffff;
-            font-size: 0.9rem;
-            padding: 8px 12px;
+            background: none;
+            border: none;
             outline: none;
+            color: #ffffff;
+            font-size: 1rem;
+            padding: 10px 0;
         }
-        input[type="text"]:focus { border-color: #0078d4; }
+
+        input[type="text"]::placeholder { color: #555566; }
+
         .launch-btn {
-            background-color: #0078d4;
-            color: white;
+            background: linear-gradient(135deg, #0078d4 0%, #00a2ff 100%);
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
-            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 120, 212, 0.4);
         }
-        .launch-btn:hover { background-color: #005a9e; }
-        .viewer-frame {
-            flex: 1;
-            border: none;
-            background-color: #ffffff;
+
+        .launch-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 162, 255, 0.6);
+            filter: brightness(1.1);
         }
+
+        .launch-btn:active {
+            transform: scale(0.95);
+        }
+
+        .launch-btn svg { width: 20px; height: 20px; fill: none; stroke: #ffffff; stroke-width: 2.5; }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
-        <input type="text" id="urlInput" placeholder="Enter URL (e.g., wikipedia.org)">
-        <button class="launch-btn" id="launchBtn">Go</button>
+    <div class="container">
+        <h1>App Launcher</h1>
+        <div class="input-wrapper">
+            <input type="text" id="urlInput" placeholder="Enter URL (e.g., wikipedia.org)">
+            <button class="launch-btn" id="launchBtn">
+                <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+        </div>
     </div>
-
-    <iframe class="viewer-frame" id="webViewer" src="about:blank"></iframe>
 
     <script>
         const urlInput = document.getElementById('urlInput');
         const launchBtn = document.getElementById('launchBtn');
-        const webViewer = document.getElementById('webViewer');
 
         function launch() {
             let input = urlInput.value.trim();
             if (!input) return;
             
-            // Automatically add https:// if the user didn't type it
             if (!/^https?:\/\//i.test(input)) {
                 input = 'https://' + input;
             }
             
-            // Set the iframe source to the new URL
-            webViewer.src = input;
+            // 'popup=yes' forces the browser to open it as a standalone app window
+            window.open(input, '_blank', 'popup=yes,width=1200,height=800,menubar=no,toolbar=no,location=no,status=no');
         }
 
         launchBtn.addEventListener('click', launch);
